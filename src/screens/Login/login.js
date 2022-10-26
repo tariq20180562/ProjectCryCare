@@ -54,7 +54,7 @@ const Login = ({navigation: {navigate}}) => {
             })
               .then(res =>
                 res.data.status
-                  ? navigate('Forget')
+                  ? navigate('Home')
                   : setMessage(res.data.message),
               )
               .catch(err => console.log('err', err));
