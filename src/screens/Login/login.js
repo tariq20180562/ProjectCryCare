@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {styles} from './styles';
 import React, {useState} from 'react';
 import {ScrollView} from 'react-native-gesture-handler';
@@ -32,7 +33,7 @@ const loginSchema = yup.object().shape({
     ),
 });
 
-const Login = ({navigation: {navigate}}) => {
+const Login = ({navigation}) => {
   const [ispasswordShown, setIsPasswordShown] = useState(true);
   const [message, setMessage] = useState('');
   const showPasswordHandler = () => {
@@ -52,11 +53,15 @@ const Login = ({navigation: {navigate}}) => {
                 password: values.password,
               },
             })
-              .then(res =>
-                res.data.status
-                  ? navigate('Home')
-                  : setMessage(res.data.message),
-              )
+              .then(res => {
+                try{
+                if (res.data.status) {
+                  AsyncStorage.setItem('AccesToken', res.data.data.token);
+                  navigation.replace('Home');
+                } else {
+                  setMessage(res.data.message);
+                }}catch(e){}
+              })
               .catch(err => console.log('err', err));
           }}
           validationSchema={loginSchema}>
@@ -120,7 +125,7 @@ const Login = ({navigation: {navigate}}) => {
                 <Text style={styles.errors}>{errors.password}</Text>
               )}
 
-              <Pressable onPress={()=>navigate('Forget')}>
+              <Pressable onPress={() => navigate('Forget')}>
                 <Text style={styles.forgetText}>Forget Password ?</Text>
               </Pressable>
               <Button
